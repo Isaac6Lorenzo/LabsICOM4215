@@ -1,0 +1,113 @@
+`include"register_file.v"
+
+module register_file_test;
+    
+    reg clock, enable;
+    reg  [4:0] select_decoder, select_readerA, select_readerB, select_readerD;
+    reg [31:0] data_writer;
+    wire [31:0] outputA, outputB, outputD;
+
+
+    //register_file(clock, enable, RW, PW, RA, PA, RB, PB, RD, PD);
+
+
+    register_file RF01(clock, enable, select_decoder, data_writer, select_readerA, outputA, 
+                        select_readerB, outputB, select_readerD, outputD);
+    // RW ==> select
+    //PW ==> 32'b0000
+    
+    initial
+        begin
+            $dumpfile("register_file_test.vcd");
+            $dumpvars(0, register_file_test);
+        end
+
+    initial
+        begin
+            $display("");
+            $display("clock      enable      select_decoder       data_writer       RA     PA       RB        PB        RD        PD                time");
+            $monitor("%b          %b             %b             %h          %b  %h  %b   %h   %b   %h     %d", clock, enable, select_decoder, data_writer, select_readerA, outputA, select_readerB, outputB, select_readerD, outputD, $time);
+        end
+
+    initial begin
+
+        // #0 enable = 0;
+        #0 enable = 1;
+        //RW = RA = RB = RD ==> PD=PA=PB
+        #0 data_writer = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+        #0 select_decoder = 5'b00000;         
+        #0 select_readerA = select_decoder;
+        #0 select_readerB = select_decoder;
+        #0 select_readerD = select_decoder;
+
+        #10 data_writer = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
+        #10 select_decoder = 5'b00001;
+        #10 select_readerA = select_decoder;
+        #10 select_readerB = select_decoder;
+        #10 select_readerD = select_decoder;
+
+        #20 data_writer = 32'b0000_0000_0000_0000_0000_0000_0000_1111;
+        #20 select_decoder = 5'b00010;          
+        #20 select_readerA = select_decoder;
+        #20 select_readerB = select_decoder;
+        #20 select_readerD = select_decoder;
+        
+        #30 data_writer = 32'b0000_0000_0000_0000_0000_0000_1111_0000;
+        #30 select_decoder = 5'b00011;          
+        #30 select_readerA = select_decoder;
+        #30 select_readerB = select_decoder;
+        #30 select_readerD = select_decoder;
+        
+        #40 data_writer = 32'b0000_0000_0000_0000_0000_0000_1111_0011;
+        #40 select_decoder = 5'b00100;                   
+        #40 select_readerA = select_decoder;
+        #40 select_readerB = 5'b00011;
+        #40 select_readerD = 5'b00011;
+
+        #50 data_writer = 32'b1111_0000_0000_0000_0000_0000_1111_0000;       
+        #50 select_decoder = 5'b00101;          
+        #50 select_readerA = select_decoder;
+        #50 select_readerB = 5'b00010;
+        #50 select_readerD = 5'b00010;
+        
+        #60 data_writer = 32'b0000_0000_0000_0000_0000_0000_1111_1000;       
+        #60 select_decoder = 5'b00110;         
+        #60 select_readerA = select_decoder;
+        #60 select_readerB = 5'b00010;
+        #60 select_readerD = 5'b00001;
+
+        #70 data_writer = 32'b0000_0000_0000_0000_1111_0000_0000_0000;               
+        #70 select_decoder = 5'b00111;  
+        #70 select_readerA = select_decoder;
+        #70 select_readerB = select_decoder;
+        #70 select_readerD = select_decoder;
+
+        #80 enable = 0;
+        #80 data_writer = 32'b0000_0000_0000_0000_1111_0000_0000_0001;               
+        #80 select_decoder = 5'b11111;          
+        #80 select_readerA = select_decoder;
+        #80 select_readerB = select_decoder;
+        #80 select_readerD = select_decoder;
+
+        // #90 data_writer = 32'b0000_0000_0000_0000_1111_0000_0000_0100;               
+        // #90 select_decoder = 5'b01001;          
+        // #90 select_readerA = select_decoder;
+        // #90 select_readerB = select_decoder;
+        // #90 select_readerD = select_decoder;
+
+        // #100 data_writer = 32'b1111_0010_0000_0000_1111_0000_0000_0000;               
+        // #100 select_decoder = 5'b01010;         
+        // #100 select_readerA = select_decoder;
+        // #100 select_readerB = select_decoder;
+        // #100 select_readerD = select_decoder;
+            
+    end
+
+    initial begin
+        clock = 1'b0;
+        forever #100 clock = ~clock;
+    end
+
+    initial #2000 $finish;
+
+endmodule
